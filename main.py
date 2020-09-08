@@ -1,4 +1,5 @@
 import argparse
+import math
 parser = argparse.ArgumentParser(description="Tell me which strategy to use on which sudoku.")
 
 parser.add_argument("SAT", type=str, nargs='+')
@@ -13,35 +14,30 @@ print("Opening file: ", args.inputfile)
 file = open(args.inputfile, "r+")     # opens the sudoku file
 
 
-
-def sudoku_into_dimac(file, size):
-    file_dimacs = open("fileDimacs", "w+")  # write DIMAC version into a new file
+def sudoku_into_dimac(file):
+    file_dimacs = open("fileDimacs", "w+")  # opens new file to write DIMAC version into it
     data = file.read().split()
+    size = int(math.sqrt(len(data[0])))   # gives the size of the sudoku
     row = 0
     column = 0
     sudoku_nr = 0
-
-    while data:
-        if data[sudoku_nr][(row*9)+column] != '.':
-            file_dimacs.write(data[sudoku_nr][(row*9)+column])
-            file_dimacs.write(str(row+1))
-            file_dimacs.write(str(column+1))
-            file_dimacs.write(" 0")
-            file_dimacs.write("\n")
-
-        column += 1
-        if column >= size:
+    while sudoku_nr < len(data):  # To make sure you are not going out of bounds in the # of sudokus
+        if data[sudoku_nr][(row*size)+column] != '.':
+            file_dimacs.write(data[sudoku_nr][(row*size)+column]) # Write down the corresponding number
+            file_dimacs.write(str(row+1))               # Write down row number (beginning from 1)
+            file_dimacs.write(str(column+1))            # Write down column number (also beginning from 1)
+            file_dimacs.write(" 0\n")                   # Write a 0 at the end of the line
+        column += 1                     # iterate over columns
+        if column >= size:              # if you are further then the last column -> start again one row lower
             column = 0
             row += 1
-        if row >= size:
+        if row >= size:                 # if you are further then the last row -> go to the next sudoku
             row = 0
             file_dimacs.write("\n")
             sudoku_nr += 1
-
     return file_dimacs
 
-size = input("What is the size of the sudoku(s)?\n")
-fileDimac = sudoku_into_dimac(file, int(size))
+fileDimac = sudoku_into_dimac(file)
 
 if args.strategy == 1:    # start solving sudokus with strategy 1
     print("You've chosen strategy", args.strategy)
