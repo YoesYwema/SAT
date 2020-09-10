@@ -1,8 +1,9 @@
 import argparse
 import math
+import solve
 
 def sudoku_into_dimac(file):
-    file_dimacs = open("fileDimacs", "w+")  # opens new file to write DIMAC version into it
+    file_dimacs = open("fileDimacs", "w")  # opens new file to write DIMAC version into it
     data = file.read().split()
     size = int(math.sqrt(len(data[0])))   # gives the size of the sudoku
     row = 0
@@ -36,12 +37,17 @@ parser.add_argument('inputfile', help="Choose your sudoku file to be solved")
 args = parser.parse_args()
 
 print("Opening file: ", args.inputfile)
-file = open(args.inputfile, "r+")  # opens the sudoku file
-fileDimac = sudoku_into_dimac(file)
+file = open(args.inputfile, "r")  # opens the sudoku file with the possibility to read the file
+sudoku_into_dimac(file)
 file.close()
+solve.solve_sudoku(args.strategy)
+
 if args.strategy == 1:    # start solving sudokus with strategy 1
     print("You've chosen strategy", args.strategy)
+
 if args.strategy == 2:    # start solving sudokus with strategy 2
     print("You've chosen strategy", args.strategy)
+    solve.solve_sudoku_strategy2()
 if args.strategy == 3:    # start solving sudokus with strategy 3
     print("You've chosen strategy", args.strategy)
+    solve.solve_sudoku_strategy3()
