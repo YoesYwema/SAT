@@ -2,6 +2,7 @@ import argparse
 import math
 import solve
 
+
 def sudoku_into_dimac(file):
     file_dimacs = open("fileDimacs", "w")  # opens new file to write DIMAC version into it
     data = file.read().split()
