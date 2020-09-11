@@ -16,14 +16,14 @@ def solve_sudoku(strategy):
 #         print("You've chosen strategy", strategy)
 #         solve_sudoku_strategy3()
 
-# def check_tautologies():
+# def tautologies():
 #
-# def check_empty_clauses():
+# def empty_clauses():
 #
-# def check_unit_clauses():
+# def unit_clauses():
 #
-# def check_pure_literals():
+# def pure_literals():
 #
-# def check_amount_of_clauses():
+# def amount_of_clauses():
 #
 # def split():
