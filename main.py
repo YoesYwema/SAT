@@ -41,7 +41,8 @@ print("Opening file: ", args.inputfile)
 file = open(args.inputfile, "r")  # opens the sudoku file with the possibility to read the file
 sudoku_into_dimac(file)
 file.close()
-solve.solve_sudoku(args.strategy)
+satisfied = solve.solve_sudoku(args.strategy)
+print(satisfied)
 
 if args.strategy == 1:    # start solving sudokus with strategy 1
     print("You've chosen strategy", args.strategy)

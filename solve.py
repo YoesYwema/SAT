@@ -2,6 +2,15 @@ def solve_sudoku(strategy):
     sudoku = parser("fileDimacs")
     rules = parser("sudoku-rules.txt")
     rules_copy = rules.copy()
+    print(rules)
+
+    if rules == []:
+        return True
+    for clause in rules:
+        if clause == []:
+            return False
+
+
     pure_literals(rules, sudoku)
 
     """Here we need code to reduce the amount of clauses by the DPLL algorithm """
@@ -38,9 +47,10 @@ def parser(file):
 
 def pure_literals(rules, sudoku):
     for literal in sudoku:
-        if literal in rules:
+        if -literal in rules:
             rules.pop(literal)
             print(rules)
+
 
 # def amount_of_clauses():
 #
