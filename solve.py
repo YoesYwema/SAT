@@ -1,8 +1,6 @@
 def solve_sudoku(strategy):
     sudoku = parser("fileDimacs")
     rules = parser("sudoku-rules.txt")
-    rules_copy = rules.copy()
-    print(rules)
 
     if rules == []:
         return True
@@ -10,8 +8,9 @@ def solve_sudoku(strategy):
         if clause == []:
             return False
 
-
-    pure_literals(rules, sudoku)
+    #rules, sudoku = tautologies(rules, sudoku)
+    rules, sudoku = pure_literals(rules, sudoku)
+    #rules, sudoku = unit_clauses(rules,sudoku)
 
     """Here we need code to reduce the amount of clauses by the DPLL algorithm """
 
@@ -39,17 +38,20 @@ def parser(file):
 #         print("You've chosen strategy", strategy)
 #         solve_sudoku_strategy3()
 
-# def tautologies():
-#
-# def empty_clauses():
-#
-# def unit_clauses():
+def tautologies(rules, sudoku):
+    return 1
+
+def unit_clauses(rules, sudoku):
+    return 1
 
 def pure_literals(rules, sudoku):
     for literal in sudoku:
-        if -literal in rules:
-            rules.pop(literal)
-            print(rules)
+        neg_literal = -1*literal
+
+        for line in rules:
+            if neg_literal in line:
+                line.clear()
+                print("removed literals!!")
 
 
 # def amount_of_clauses():
