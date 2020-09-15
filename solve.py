@@ -1,16 +1,23 @@
 def solve_sudoku(strategy):
-    sudoku = parser("fileDimacs")
-    rules = parser("sudoku-rules.txt")
+    sudoku = sudoku_parser("fileDimacs")
+    rules, n_vars = parser("sudoku-rules.txt")
+    formula = rules.append(sudoku)
+    solution = []
 
-    if rules == []:
-        return True
-    for clause in rules:
-        if clause == []:
+    if not formula:             # No more clauses so the problem is solved
+        return True, solution
+    for clause in formula:      # There exist an Empty clause so problem is unsatisfiable
+        if not clause:
             return False
 
-    #rules, sudoku = tautologies(rules, sudoku)
-    rules, sudoku = pure_literals(rules, sudoku)
-    #rules, sudoku = unit_clauses(rules,sudoku)
+    # formula, solution  = tautologies(formula, solution)
+
+    formula, solution = pure_literals(formula, solution)
+
+    # formula, solution = unit_clauses(formula, solution)
+
+    # formula, solution = split(formula, solution)
+
 
     """Here we need code to reduce the amount of clauses by the DPLL algorithm """
 
@@ -22,21 +29,19 @@ def parser(file):
             continue
         clause = [int(y) for y in line[:-2].split()]
         clauses.append(clause)
-    return clauses
+    return clauses, nvars
 
 
-# def solve_sudoku_strategy1(strategy):
-#     if strategy == 1:  # start solving sudokus with strategy 2
-#         print("You've chosen strategy", strategy)
-#         solve_sudoku_strategy1()
-# def solve_sudoku_strategy2(strategy):
-#     if strategy == 2:  # start solving sudokus with strategy 2
-#         print("You've chosen strategy", strategy)
-#         solve_sudoku_strategy2()
-# def solve_sudoku_strategy3(strategy):
-#     if strategy == 3:  # start solving sudokus with strategy 3
-#         print("You've chosen strategy", strategy)
-#         solve_sudoku_strategy3()
+def sudoku_parser(file): # now only gives the first sudoku
+    clauses = []
+    for line in open(file):
+        clause = [int(y) for y in line[:-2].split()]
+        if clause:
+            clauses.append(clause)
+        if not clause:
+            return clauses
+
+
 
 def tautologies(rules, sudoku):
     return 1
@@ -47,12 +52,14 @@ def unit_clauses(rules, sudoku):
 def pure_literals(rules, sudoku):
     for literal in sudoku:
         neg_literal = -1*literal
-
         for line in rules:
-            if neg_literal in line:
+            if line == literal:
                 line.clear()
-                print("removed literals!!")
-
+                print("cleared line!")
+            if line == neg_literal:
+                line.remove(literal)
+                print("removed literals!")
+    return rules, sudoku
 
 # def amount_of_clauses():
 #

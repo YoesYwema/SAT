@@ -42,7 +42,10 @@ file = open(args.inputfile, "r")  # opens the sudoku file with the possibility t
 sudoku_into_dimac(file)
 file.close()
 satisfied = solve.solve_sudoku(args.strategy)
-print(satisfied)
+if satisfied:
+    print("This problem is satisfiable")
+if not satisfied:
+    print("Problem is unsatisfiable")
 
 if args.strategy == 1:    # start solving sudokus with strategy 1
     print("You've chosen strategy", args.strategy)
