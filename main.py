@@ -4,9 +4,9 @@ import solve
 
 
 def sudoku_into_dimac(file):
-    file_dimacs = open("fileDimacs", "w")  # opens new file to write DIMAC version into it
+    file_dimacs = open("fileDimacs", "w")   # opens new file to write DIMACS version into it
     data = file.read().split()
-    size = int(math.sqrt(len(data[0])))   # gives the size of the sudoku
+    size = int(math.sqrt(len(data[0])))     # gives the size of the sudoku
     row = 0
     column = 0
     sudoku_nr = 0
@@ -26,7 +26,7 @@ def sudoku_into_dimac(file):
             sudoku_nr += 1
     return file_dimacs
 
-
+'''' Parsing of the arguments into main.py SAT -S? ??file??'''
 parser = argparse.ArgumentParser(description="Tell me which strategy to use on which sudokus.")
 
 parser.add_argument("SAT", type=str, nargs='+')
@@ -35,9 +35,11 @@ parser.add_argument("--strategy", "-S", type=int, default=1, choices=[1, 2, 3],
                     help="Choose the strategy")
 
 parser.add_argument('inputfile', help="Choose your sudoku file to be solved")
+
 args = parser.parse_args()
 
-def parser(file): # parses the rules into clauses without the zeroes
+'''parses the rules into clauses without the zeroes'''
+def parser(file):
     clauses = []
     for line in open(file):
         if line.startswith("p"):
@@ -47,7 +49,7 @@ def parser(file): # parses the rules into clauses without the zeroes
         clauses.append(clause)
     return clauses, nvars
 
-
+'''parses the given sudoku into clauses without the zeroes'''
 def sudoku_parser(file): # now only returns the first sudoku
     clauses = []
     for line in open(file):
@@ -57,29 +59,20 @@ def sudoku_parser(file): # now only returns the first sudoku
         if not clause:
             return clauses
 
-
-file = open(args.inputfile, "r")  # reads the sudoku file
-sudoku_into_dimac(file)     # calls function to translate sudoku to DIMACS
+'''reads the sudoku file & calls function to translate sudoku to DIMACS'''
+file = open(args.inputfile, "r")
+sudoku_into_dimac(file)
 file.close()
 
+'''call to the parsers & call the sat solver in solve.py'''
 sudoku = sudoku_parser("fileDimacs")
 rules, n_vars = parser("sudoku-rules.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
-solution = solve.sat_solver(formula)
-
+assignment = []
+assignment, solution = solve.sat_solver(formula, assignment, False)
 if solution:
     print("This problem is satisfiable")
 if not solution:
     print("Problem is unsatisfiable")
-
-if args.strategy == 1:    # start solving sudokus with strategy 1
-    print("You've chosen strategy", args.strategy)
-
-if args.strategy == 2:    # start solving sudokus with strategy 2
-    print("You've chosen strategy", args.strategy)
-    solve.solve_sudoku_strategy2()
-if args.strategy == 3:    # start solving sudokus with strategy 3
-    print("You've chosen strategy", args.strategy)
-    solve.solve_sudoku_strategy3()

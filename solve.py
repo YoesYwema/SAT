@@ -1,19 +1,27 @@
-def sat_solver(formula):
-    assignment = []
+def sat_solver(formula, assignment, satisfiable):
+    if not formula:
+        satisfiable = True
+    for clause in formula:
+        if not clause:
+            satisfiable = False
 
-    # formula, assignment   = tautologies(formula, assignment)
+    # formula, assignment = tautologies(formula, assignment)
 
     formula, assignment = unit_clauses(formula, assignment)
     print("Assignment: " + str(assignment))
+    print("Formula: " + str(formula))
 
     formula, assignment = pure_literals(formula, assignment)
     print("Assignment: " + str(assignment))
+    print("Formula: " + str(formula))
 
-    # formula, assignment = split(formula, assignment)
+    # formula1, formula2, assignment = split(formula, assignment)
+
+    # sat_solver(formula1, assignment, False)
+    # sat_solver(formula2, assignment, False)
     # print("Assignment: " + str(assignment))
 
-    """Here we need code to reduce the amount of clauses by the DPLL algorithm """
-
+    return assignment, satisfiable
 
 def tautologies(rules, sudoku):
     return 1
