@@ -1,27 +1,23 @@
 def solve_sudoku(strategy):
     sudoku = sudoku_parser("fileDimacs")
     rules, n_vars = parser("sudoku-rules.txt")
-    formula = rules.append(sudoku)
-    solution = []
+    formula = []
+    formula.extend(rules)
+    formula.extend(sudoku)
+    assignment = []
 
-    if not formula:             # No more clauses so the problem is solved
-        return True, solution
-    for clause in formula:      # There exist an Empty clause so problem is unsatisfiable
-        if not clause:
-            return False
+    # formula, solution  = tautologies(formula, assignment)
 
-    # formula, solution  = tautologies(formula, solution)
+    # formula, solution = pure_literals(formula, assignment)
 
-    formula, solution = pure_literals(formula, solution)
+    formula, solution = unit_clauses(formula, assignment)
 
-    # formula, solution = unit_clauses(formula, solution)
-
-    # formula, solution = split(formula, solution)
+    # formula, solution = split(formula, assignment)
 
 
     """Here we need code to reduce the amount of clauses by the DPLL algorithm """
 
-def parser(file):
+def parser(file): # parses the rules into clauses without the zeroes
     clauses = []
     for line in open(file):
         if line.startswith("p"):
@@ -32,7 +28,7 @@ def parser(file):
     return clauses, nvars
 
 
-def sudoku_parser(file): # now only gives the first sudoku
+def sudoku_parser(file): # now only returns the first sudoku
     clauses = []
     for line in open(file):
         clause = [int(y) for y in line[:-2].split()]
@@ -42,25 +38,30 @@ def sudoku_parser(file): # now only gives the first sudoku
             return clauses
 
 
-
 def tautologies(rules, sudoku):
     return 1
 
-def unit_clauses(rules, sudoku):
-    return 1
 
-def pure_literals(rules, sudoku):
-    for literal in sudoku:
-        neg_literal = -1*literal
-        for line in rules:
-            if line == literal:
-                line.clear()
-                print("cleared line!")
-            if line == neg_literal:
-                line.remove(literal)
-                print("removed literals!")
-    return rules, sudoku
+def unit_clauses(formula, assignment):
+    unit = []
+    for clause in formula:
+        if len(clause) == 1:                    # Found a unit clause
+            for i in clause:
+                unit.append(i)                  # Save the unit clauses
+            assignment.append(clause.pop())     # Add unit clause to the solution and delete clause from formula
+    for clause in formula:
+        i = 0
+        while i < len(unit):
+            for literal in clause:
+                if -unit[i] == literal:         # When negation of unit clause exists
+                    clause.remove(literal)      # Remove this negation from all other clauses
+            i += 1
+    return formula, assignment
 
+
+
+# def pure_literals(formula, solution):
+#
 # def amount_of_clauses():
 #
 # def split():
