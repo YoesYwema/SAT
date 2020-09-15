@@ -37,11 +37,37 @@ parser.add_argument("--strategy", "-S", type=int, default=1, choices=[1, 2, 3],
 parser.add_argument('inputfile', help="Choose your sudoku file to be solved")
 args = parser.parse_args()
 
-print("Opening file: ", args.inputfile)
-file = open(args.inputfile, "r")  # opens the sudoku file with the possibility to read the file
-sudoku_into_dimac(file)
+def parser(file): # parses the rules into clauses without the zeroes
+    clauses = []
+    for line in open(file):
+        if line.startswith("p"):
+            nvars, nclauses = line.split()[2:4]
+            continue
+        clause = [int(y) for y in line[:-2].split()]
+        clauses.append(clause)
+    return clauses, nvars
+
+
+def sudoku_parser(file): # now only returns the first sudoku
+    clauses = []
+    for line in open(file):
+        clause = [int(y) for y in line[:-2].split()]
+        if clause:
+            clauses.append(clause)
+        if not clause:
+            return clauses
+
+
+file = open(args.inputfile, "r")  # reads the sudoku file
+sudoku_into_dimac(file)     # calls function to translate sudoku to DIMACS
 file.close()
-solution = solve.solve_sudoku(args.strategy)
+
+sudoku = sudoku_parser("fileDimacs")
+rules, n_vars = parser("sudoku-rules.txt")
+formula = []
+formula.extend(rules)
+formula.extend(sudoku)
+solution = solve.sat_solver(formula)
 
 if solution:
     print("This problem is satisfiable")

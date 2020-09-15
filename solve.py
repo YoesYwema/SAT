@@ -1,9 +1,4 @@
-def solve_sudoku(strategy):
-    sudoku = sudoku_parser("fileDimacs")
-    rules, n_vars = parser("sudoku-rules.txt")
-    formula = []
-    formula.extend(rules)
-    formula.extend(sudoku)
+def sat_solver(formula):
     assignment = []
 
     # formula, assignment   = tautologies(formula, assignment)
@@ -18,26 +13,6 @@ def solve_sudoku(strategy):
     # print("Assignment: " + str(assignment))
 
     """Here we need code to reduce the amount of clauses by the DPLL algorithm """
-
-def parser(file): # parses the rules into clauses without the zeroes
-    clauses = []
-    for line in open(file):
-        if line.startswith("p"):
-            nvars, nclauses = line.split()[2:4]
-            continue
-        clause = [int(y) for y in line[:-2].split()]
-        clauses.append(clause)
-    return clauses, nvars
-
-
-def sudoku_parser(file): # now only returns the first sudoku
-    clauses = []
-    for line in open(file):
-        clause = [int(y) for y in line[:-2].split()]
-        if clause:
-            clauses.append(clause)
-        if not clause:
-            return clauses
 
 
 def tautologies(rules, sudoku):
