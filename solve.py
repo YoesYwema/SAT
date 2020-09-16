@@ -86,19 +86,16 @@ def split(formula, assignment):
 
 
 def print_sudoku(assignment):
-    rows, cols = (9, 9)
-    sudoku = [[0] * cols] * rows
-
+    # create a 2d array with zeroes everywhere
+    sudoku = np.zeros((9, 9), dtype=int)
+    # take every number in the solution  individually
+    print(assignment)
     for number in assignment:
-        number = str(number)
-        print(number)
-        print("number 0: " + str(number[0]))
-        print("number 1: " + str(number[1]))
-        print("number 2: " + str(number[2]))
-        sudoku[int(number[1])-1][int(number[2])-1] = number[0]
-
+        number = str(number) # convert the 3 digit number to a string
+        sudoku[int(number[1])-1][int(number[2])-1] = number[0] # first digit is the number, second the column nad third the row
+    print("\nSudoku solution:")
     for j in range(9):
-        print(sudoku[j])
-    print("\n\n")
+        print(str(sudoku[j]))
+    print("\n")
 
 
