@@ -1,8 +1,9 @@
 import random as r
 import numpy as np
 
+
 def sat_solver(formula, assignment, satisfiable):
-    print_sudoku(list(dict.fromkeys(assignment)))
+    print(formula)
     if not formula:
         satisfiable = True
         return assignment, satisfiable
@@ -22,20 +23,18 @@ def tautologies(rules, sudoku):
 def unit_clauses(formula, assignment):
     unit = []
     for clause in formula:
-        if len(clause) == 1:                        # Found a unit clause
-            for literal in clause:
-                unit.append(literal)                # Save the unit clauses
+        if len(clause) == 1:                            # Found a unit clause
+            for literal in clause:                      # To get integer instead of list object
+                unit.append(literal)                    # Save the unit clause in the list unit
                 if literal > 0:                         # If literal is positive ..
-                    assignment.append(literal)     # Pop clause from formula and add to solution
-                    del clause
-                    continue
-
+                    assignment.append(literal)          # Pop clause from formula and add to solution
+                    clause.pop()
     '''When a unit clause occurs in other clauses or its negation occurs in other clauses'''
     for clause in formula:
         for u in unit:
             for literal in clause:
                 if u == literal:                # Occurrence of unit clause
-                    clause.clear()              # Clause deleted since this one is always true
+                    clause.pop()                # Clause deleted since this one is always true
                 if -u == literal:               # When negation of unit clause exists
                     clause.remove(literal)      # Remove this negation
     return formula, assignment
@@ -59,11 +58,12 @@ def pure_literals(formula, assignment):
     pure.clear()
     return formula, assignment
 
+
 def split(formula, assignment):
     formula1 = []
     formula2 = []
     assignment1 = assignment2 = assignment
-    # depends on strategy what you do here: some random literal or some heuristic to get another literal
+    # depends on strategy what you do here: some random literal or some heuristic to get a specific literal
     random_literal = r.choice(list(dict.fromkeys([literal for clause in formula for literal in clause])))
     formula1.append([random_literal])
     formula2.append([-random_literal])
