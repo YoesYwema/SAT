@@ -71,8 +71,9 @@ formula = []
 formula.extend(rules)
 formula.extend(sudoku)
 assignment = []
-assignment, solution = solve.sat_solver(formula, assignment, False)
-if solution:
+assignment, satisfiable = solve.sat_solver(formula, assignment, False)
+if satisfiable:
     print("This problem is satisfiable")
-if not solution:
+    print("Assignment: " + str(assignment))
+if not satisfiable:
     print("Problem is unsatisfiable")
