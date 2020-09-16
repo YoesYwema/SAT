@@ -1,33 +1,18 @@
 import random as r
-
+import numpy as np
 
 def sat_solver(formula, assignment, satisfiable):
-    if len(formula) == 0:
+    print_sudoku(list(dict.fromkeys(assignment)))
+    if not formula:
         satisfiable = True
         return assignment, satisfiable
-    # if any([clause == 0 for clause in formula]):
-    #     satisfiable = False
-    #     return assignment, satisfiable
 
-    #formula, assignment = tautologies(formula, assignment)
-
+    # formula, assignment = tautologies(formula, assignment)
     formula, assignment = unit_clauses(formula, assignment)
-
-    # print("Formula: " + str(formula))
-
     formula, assignment = pure_literals(formula, assignment)
-    # print("Assignment: " + str(assignment))
-    # print("Formula: " + str(formula))
-
     formula1, formula2, assignment1, assignment2 = split(formula, assignment)
-
-    print(formula)
-    print("Assignment: " + str(list(dict.fromkeys(assignment))))
-
     sat_solver(formula1, assignment1, satisfiable)
     sat_solver(formula2, assignment2, satisfiable)
-
-    return assignment, False
 
 
 def tautologies(rules, sudoku):
@@ -40,10 +25,10 @@ def unit_clauses(formula, assignment):
         if len(clause) == 1:                        # Found a unit clause
             for literal in clause:
                 unit.append(literal)                # Save the unit clauses
-            if literal > 0:                         # If literal is positive ..
-                assignment.append(literal)     # Pop clause from formula and add to solution
-                del clause
-                continue
+                if literal > 0:                         # If literal is positive ..
+                    assignment.append(literal)     # Pop clause from formula and add to solution
+                    del clause
+                    continue
 
     '''When a unit clause occurs in other clauses or its negation occurs in other clauses'''
     for clause in formula:
@@ -98,3 +83,22 @@ def split(formula, assignment):
             formula2.append(clause)
 
     return formula1, formula2, assignment1, assignment2
+
+
+def print_sudoku(assignment):
+    rows, cols = (9, 9)
+    sudoku = [[0] * cols] * rows
+
+    for number in assignment:
+        number = str(number)
+        print(number)
+        print("number 0: " + str(number[0]))
+        print("number 1: " + str(number[1]))
+        print("number 2: " + str(number[2]))
+        sudoku[int(number[1])-1][int(number[2])-1] = number[0]
+
+    for j in range(9):
+        print(sudoku[j])
+    print("\n\n")
+
+
