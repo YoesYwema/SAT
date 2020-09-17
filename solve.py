@@ -3,13 +3,11 @@ import numpy as np
 
 
 def sat_solver(formula, assignment, satisfiable):
-    print(formula)
     if not formula:
         satisfiable = True
         return assignment, satisfiable
-
     # formula, assignment = tautologies(formula, assignment)
-    formula, assignment = unit_clauses(formula, assignment)
+    formula, assignment, empty_set = unit_clauses(formula, assignment)
     formula, assignment = pure_literals(formula, assignment)
     formula1, formula2, assignment1, assignment2 = split(formula, assignment)
     sat_solver(formula1, assignment1, satisfiable)
@@ -21,6 +19,7 @@ def tautologies(rules, sudoku):
 
 
 def unit_clauses(formula, assignment):
+    empty_set = False
     unit = []
     for clause in formula:
         if len(clause) == 1:                            # Found a unit clause
@@ -28,63 +27,72 @@ def unit_clauses(formula, assignment):
                 unit.append(literal)                    # Save the unit clause in the list unit
                 if literal > 0:                         # If literal is positive ..
                     assignment.append(literal)          # Pop clause from formula and add to solution
-                    clause.pop()
+            clause.clear()
+
     '''When a unit clause occurs in other clauses or its negation occurs in other clauses'''
-    for clause in formula:
-        for u in unit:
-            for literal in clause:
-                if u == literal:                # Occurrence of unit clause
-                    clause.pop()                # Clause deleted since this one is always true
-                if -u == literal:               # When negation of unit clause exists
-                    clause.remove(literal)      # Remove this negation
-    return formula, assignment
+    for u in unit:
+        for clause in formula:
+            if -u in clause:                # When negation of unit clause exists
+                clause.remove(-u)           # Remove this negation
+                if not clause:
+                    empty_set = True
+            if u in clause:                 # Occurrence of unit clause
+                clause.clear()              # Clause cleared since this one is always true
+
+    formula_cleaned = clean_formula(formula)
+    return formula_cleaned, assignment, empty_set
 
 
 def pure_literals(formula, assignment):
     seen_literals = list(dict.fromkeys([literal for clause in formula for literal in clause]))      # Get all literals that are in the formula
     pure = list(dict.fromkeys([literal for literal in seen_literals if -literal not in seen_literals])) # Extract the ones that are pure
 
-    i = 0
-    while i < len(pure):
+    for p in pure:
         for clause in formula:
-            for literal in clause:
-                if literal in pure:
-                    clause.pop()
-            i += 1
+            if p in clause:
+                clause.clear()
 
     for item in pure:
         if item > 0:
             assignment.append(item)
     pure.clear()
-    return formula, assignment
+    formula_cleaned = clean_formula(formula)
+    return formula_cleaned, assignment
 
 
 def split(formula, assignment):
     formula1 = []
     formula2 = []
-    assignment1 = assignment2 = assignment
+    assignment1 = assignment.copy()
+    assignment2 = assignment.copy()
     # depends on strategy what you do here: some random literal or some heuristic to get a specific literal
-    random_literal = r.choice(list(dict.fromkeys([literal for clause in formula for literal in clause])))
-    formula1.append([random_literal])
-    formula2.append([-random_literal])
+    if formula:
+        random_literal = r.choice(list(dict.fromkeys([literal for clause in formula for literal in clause])))
+        # Assign literal to the split formulas
+        formula1.append([random_literal])
+        formula2.append([-random_literal])
 
-    if random_literal > 0:
-        assignment1.append(random_literal)
-    if -random_literal > 0:
-        assignment2.append(-random_literal)
+        # Positive literals can be added to the solution
+        if random_literal > 0:
+            assignment1.append(random_literal)
+        if -random_literal > 0:
+            assignment2.append(-random_literal)
 
     for clause in formula:
         if random_literal in clause:
-            formula1.append(clause)
+            formula1.append([literal for literal in clause if literal != random_literal])
         if -random_literal in clause:
-            formula2.append(clause)
+            formula2.append([literal for literal in clause if literal != -random_literal])
         if random_literal not in clause and -random_literal not in clause:
             formula1.append(clause)
             formula2.append(clause)
 
-    return formula1, formula2, assignment1, assignment2
+    formula1_cleaned = clean_formula(formula1)
+    formula2_cleaned = clean_formula(formula2)
+    return formula1_cleaned, formula2_cleaned, assignment1, assignment2
 
 
+'''Prints the solution in a intuative way'''
 def print_sudoku(assignment):
     # create a 2d array with zeroes everywhere
     sudoku = np.zeros((9, 9), dtype=int)
@@ -92,10 +100,16 @@ def print_sudoku(assignment):
     print(assignment)
     for number in assignment:
         number = str(number) # convert the 3 digit number to a string
-        sudoku[int(number[1])-1][int(number[2])-1] = number[0] # first digit is the number, second the column nad third the row
+        sudoku[int(number[1])-1][int(number[2])-1] = number[0]  # first digit -> number, second -> column, third -> row
     print("\nSudoku solution:")
     for j in range(9):
         print(str(sudoku[j]))
     print("\n")
+
+
+''''Get the clauses with empty lists out of the formula. Lists empty because list remains when you delete a clause'''
+def clean_formula(formula):
+    formula_cleaned = [clause for clause in formula if not clause == []]
+    return formula_cleaned
 
 
