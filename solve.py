@@ -3,16 +3,17 @@ import numpy as np
 
 
 def sat_solver(formula, assignment, satisfiable):
+    print(formula)
     if not formula:
         satisfiable = True
         return assignment, satisfiable
     # formula, assignment = tautologies(formula, assignment)
-    formula, assignment, empty_set = unit_clauses(formula, assignment)
-    formula, assignment = pure_literals(formula, assignment)
-    formula1, formula2, assignment1, assignment2 = split(formula, assignment)
-    sat_solver(formula1, assignment1, satisfiable)
-    sat_solver(formula2, assignment2, satisfiable)
-
+    formula, assignment, empty_set = unit_clauses(clean_formula(formula), assignment)
+    formula, assignment = pure_literals(clean_formula(formula), assignment)
+    formula1, formula2, assignment1, assignment2 = split(clean_formula(formula), assignment)
+    sat_solver(clean_formula(formula1), assignment1, satisfiable)
+    sat_solver(clean_formula(formula2), assignment2, satisfiable)
+    return assignment, satisfiable
 
 def tautologies(rules, sudoku):
     return 1
@@ -51,10 +52,9 @@ def pure_literals(formula, assignment):
         for clause in formula:
             if p in clause:
                 clause.clear()
-
-    for item in pure:
-        if item > 0:
-            assignment.append(item)
+    for literal in pure:
+        if literal > 0:
+            assignment.append(literal)
     pure.clear()
     formula_cleaned = clean_formula(formula)
     return formula_cleaned, assignment
@@ -66,33 +66,33 @@ def split(formula, assignment):
     assignment1 = assignment.copy()
     assignment2 = assignment.copy()
     # depends on strategy what you do here: some random literal or some heuristic to get a specific literal
-    if formula:
-        random_literal = r.choice(list(dict.fromkeys([literal for clause in formula for literal in clause])))
-        # Assign literal to the split formulas
-        formula1.append([random_literal])
-        formula2.append([-random_literal])
-
-        # Positive literals can be added to the solution
-        if random_literal > 0:
-            assignment1.append(random_literal)
-        if -random_literal > 0:
-            assignment2.append(-random_literal)
-
     for clause in formula:
-        if random_literal in clause:
-            formula1.append([literal for literal in clause if literal != random_literal])
-        if -random_literal in clause:
-            formula2.append([literal for literal in clause if literal != -random_literal])
-        if random_literal not in clause and -random_literal not in clause:
-            formula1.append(clause)
-            formula2.append(clause)
+        all_literals = list(dict.fromkeys([literal for literal in clause]))
+        if all_literals:
+            random_literal = r.choice(all_literals)
+            # Assign literal to the split formulas
+            formula1.append([random_literal])
+            formula2.append([-random_literal])
+
+            # Positive literals can be added to the solution
+            if random_literal > 0:
+                assignment1.append(random_literal)
+            if -random_literal > 0:
+                assignment2.append(-random_literal)
+            if random_literal in clause:
+                formula1.append([literal for literal in clause if literal != random_literal])
+            if -random_literal in clause:
+                formula2.append([literal for literal in clause if literal != -random_literal])
+            if random_literal not in clause and -random_literal not in clause:
+                formula1.append(clause)
+                formula2.append(clause)
 
     formula1_cleaned = clean_formula(formula1)
     formula2_cleaned = clean_formula(formula2)
     return formula1_cleaned, formula2_cleaned, assignment1, assignment2
 
 
-'''Prints the solution in a intuative way'''
+'''Prints the solution in a intuitive way'''
 def print_sudoku(assignment):
     # create a 2d array with zeroes everywhere
     sudoku = np.zeros((9, 9), dtype=int)

@@ -66,7 +66,7 @@ file.close()
 
 '''call to the parsers & call the sat solver in solve.py'''
 sudoku = sudoku_parser("fileDimacs")
-rules, n_vars = parser("sudoku-rules.txt")
+rules, n_vars = parser("sudoku-rules-4x4.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
