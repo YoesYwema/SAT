@@ -3,24 +3,28 @@ import numpy as np
 
 
 def sat_solver(formula, assignment, satisfiable):
-    print(formula)
-    if not formula:
-        satisfiable = True
-        return assignment, satisfiable
     # formula, assignment = tautologies(formula, assignment)
-    formula, assignment, empty_set = unit_clauses(clean_formula(formula), assignment)
     formula, assignment = pure_literals(clean_formula(formula), assignment)
+    formula, assignment, empty_clause = unit_clauses(clean_formula(formula), assignment)
+
+    if formula == - 1:
+        return [], satisfiable
+    if not formula:
+        return assignment, satisfiable
+
     formula1, formula2, assignment1, assignment2 = split(clean_formula(formula), assignment)
-    sat_solver(clean_formula(formula1), assignment1, satisfiable)
-    sat_solver(clean_formula(formula2), assignment2, satisfiable)
+    assignment, satisfiable = sat_solver(clean_formula(formula1), assignment1, satisfiable)
+    if not satisfiable:
+        assignment, satisfiable = sat_solver(clean_formula(formula2), assignment2, satisfiable)
     return assignment, satisfiable
+
 
 def tautologies(rules, sudoku):
     return 1
 
 
 def unit_clauses(formula, assignment):
-    empty_set = False
+    empty_clause = False
     unit = []
     for clause in formula:
         if len(clause) == 1:                            # Found a unit clause
@@ -36,12 +40,12 @@ def unit_clauses(formula, assignment):
             if -u in clause:                # When negation of unit clause exists
                 clause.remove(-u)           # Remove this negation
                 if not clause:
-                    empty_set = True
+                    empty_clause = True
             if u in clause:                 # Occurrence of unit clause
                 clause.clear()              # Clause cleared since this one is always true
 
     formula_cleaned = clean_formula(formula)
-    return formula_cleaned, assignment, empty_set
+    return formula_cleaned, assignment, empty_clause
 
 
 def pure_literals(formula, assignment):
@@ -90,7 +94,6 @@ def split(formula, assignment):
     formula1_cleaned = clean_formula(formula1)
     formula2_cleaned = clean_formula(formula2)
     return formula1_cleaned, formula2_cleaned, assignment1, assignment2
-
 
 '''Prints the solution in a intuitive way'''
 def print_sudoku(assignment):
