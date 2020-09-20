@@ -66,14 +66,13 @@ file.close()
 
 '''call to the parsers & call the sat solver in solve.py'''
 sudoku = sudoku_parser("fileDimacs")
-rules, n_vars = parser("sudoku-rules.txt")
+rules, n_vars = parser("sudoku-rules-4x4.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
-assignment = []
-assignment, satisfiable = solve.sat_solver(formula, assignment, False)
-solve.print_sudoku(list(dict.fromkeys(assignment)))
-if satisfiable:
+solution = solve.sat_solver(formula, [])
+solve.print_sudoku(list(dict.fromkeys(solution)))
+if solution:
     print("This problem is satisfiable")
-if not satisfiable:
+else:
     print("Problem is unsatisfiable")
