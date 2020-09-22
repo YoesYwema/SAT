@@ -1,7 +1,7 @@
 import random as r
 import numpy as np
 
-
+'''Main function that is called recursively to perform DPLL algorithm'''
 def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
     # Check if solution found or if failed to find a solution
     if formula == - 1:
@@ -21,18 +21,14 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
         return False
     if not formula:
         return assignment
-    # Random
-    if strategy == 1:
-        random_literal = get_random_split_literal(formula)
-    # Jeroslaw Wang (JW)
-    if strategy == 2:
-        random_literal = get_random_split_literal(formula)
 
+    if strategy == 1: # Random
+        random_literal = get_random_split_literal(formula)
+    if strategy == 2: # Jeroslaw Wang (JW)
+        random_literal = get_random_split_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
-    # Most occurrences (MOM)
-    if strategy == 3:
+    if strategy == 3: # Most occurrences (MOM)
         random_literal = get_random_split_literal(formula)
-
         '''Instead of random literal you can implement heuristic here'''
 
     solution = sat_solver(extract(formula, random_literal), assignment + [random_literal], backtrack, recursion_depth+1, strategy)
@@ -89,7 +85,10 @@ def get_random_split_literal(formula):
     # Get all positive literals
     all_literals = list(dict.fromkeys([literal for clause in formula for literal in clause if literal > 0]))
     # Choose a literal randomly from all literals
-    random_literal = r.choice(all_literals)
+    if len(all_literals) > 0:
+        random_literal = r.choice(all_literals)
+    else:
+        return -1
     return random_literal
 
 
@@ -129,7 +128,6 @@ def print_sudoku(assignment):
             sudoku[int(number[1])-1][int(number[0])-1] = number[2]  # first digit -> number, second -> column, third -> row
     for j in range(9):
         print(str(sudoku[j]))
-    print("\n")
 
 
 ''''Get the deleted clauses (which are now empty) out of the formula.'''
