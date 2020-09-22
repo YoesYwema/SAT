@@ -2,35 +2,38 @@ import random as r
 import numpy as np
 
 
-def sat_solver(formula, assignment, backtrack, tree_height):
+def sat_solver(formula, assignment, backtrack, recursion_depth):
+    # Check if solution found or if failed to find a solution
     if formula == - 1:
         return False
     if not formula:
         return assignment
 
-    tree_height += 1
-    if tree_height == 1:
+    # Only check for tautologies the first time
+    if recursion_depth == 0:
         tautologies(formula)
+    print("Recursion depth: ", str(recursion_depth))
 
+    # Simplification
+    print("Simplification")
     formula, pure_assignment = pure_literals(clean_formula(formula))
     formula, unit_assignment = unit_clauses(clean_formula(formula))
     assignment = assignment + pure_assignment + unit_assignment
 
+    # Check if solution found or if failed to find a solution
     if formula == - 1:
         return False
     if not formula:
         return assignment
 
-    # print("Assignment after simplification is: ", str(assignment))
+    # Get random literal to split
     random_literal = get_random_split_literal(formula)
-    print("Random literal to split assignment:", str(random_literal))
-    solution = sat_solver(try_literal(clean_formula(formula), random_literal), assignment + [random_literal], backtrack, tree_height)
+    print("Split(1) ", str(random_literal))
+    solution = sat_solver(extract(clean_formula(formula), random_literal), assignment + [random_literal], backtrack, recursion_depth+1)
     if not solution:
-        print("Backtrack and try counter example")
         backtrack += 1
-        print("Amount of times backtracked: ", str(backtrack))
-        solution = sat_solver(try_literal(clean_formula(formula), -random_literal), assignment + [-random_literal], backtrack, tree_height)
-        # print("Solution (post) is: ", str(solution))
+        print("Split(2) ", str(-random_literal))
+        solution = sat_solver(extract(clean_formula(formula), -random_literal), assignment + [-random_literal], backtrack, recursion_depth+1)
     return solution
 
 
@@ -41,64 +44,69 @@ def tautologies(formula):
             formula.remove(clause)
 
 
+''' Checks for unit literals and removes clauses in which unit literal occurs, also removes the negation of the unit literals  from clauses'''
 def unit_clauses(formula):
-    #print("At the begin formula is: ", str(clean_formula(formula)))
+    # This is no solution
     if formula == -1:
         return -1, []
     formula_copy = formula.copy()
-    unit = []
-    assignment = []
+    units = []
+    # Find unit literals, save them and clear clause if unit literal is in it
     for clause in formula_copy:
-        if len(clause) == 1:                            # Found a unit clause
-            for literal in clause:                      # To get integer instead of list object
-                unit.append(literal)                    # Save the unit clause in the list unit
+        if len(clause) == 1:
+            for literal in clause:
+                units.append(literal)
             clause.clear()
-    '''When a unit clause occurs in other clauses or its negation occurs in other clauses'''
-    for u in unit:
+    # When a unit clause occurs in other clauses or its negation occurs in other clauses
+    for unit in units:
         for clause in formula_copy:
-            if -u in clause:                # When negation of unit clause exists
-                clause.remove(-u)           # Remove this negation
+            if -unit in clause:                # When negation of unit clause exists
+                clause.remove(-unit)           # Remove this negation
                 if len(clause) == 0:        # If empty clause this solution is not satisfiable
+                    print("Found empty clause by unit clause elimination")
                     return -1, []
-            if u in clause:                 # Occurrence of unit clause
+            if unit in clause:                 # Occurrence of unit clause
                 clause.clear()              # Clause cleared since this one is always true
-    print("Found unit clauses: ", list(dict.fromkeys(unit)))
-    #print("Afterwards formula is: ", str(clean_formula(formula)))
-    assignment += list(dict.fromkeys(unit))
-    return clean_formula(formula_copy), assignment
+    units = list(dict.fromkeys(units))
+    return clean_formula(formula_copy), units
 
 
+''' Checks for pure literals in the formula and removes the clauses in which a pure literal occurs'''
 def pure_literals(formula):
+    # This is no solution
     if formula == -1:
         return -1, []
     formula_copy = formula.copy()
-    assignment = []
-    seen_literals = list(dict.fromkeys([literal for clause in formula_copy for literal in clause]))      # Get all literals that are in the formula
-    pure = list(dict.fromkeys([literal for literal in seen_literals if -literal not in seen_literals])) # Extract the ones that are pure
-    #print("At the begin formula is: ", str(formula))
-    print("Found pures: ", str(pure))
+    # From all literals that are in the formula extract the ones that occur without their negation
+    all_literals = list(dict.fromkeys([literal for clause in formula_copy for literal in clause]))
+    pure = list(dict.fromkeys([literal for literal in all_literals if -literal not in all_literals]))
+    # Clear all clauses in which a pure literal occurs
     for p in pure:
         for clause in formula_copy:
             if p in clause:
                 clause.clear()
-    assignment += list(dict.fromkeys(pure))
-    #print("Afterwards formula is: ", str(clean_formula(formula)))
-    return clean_formula(formula_copy), assignment
+    return clean_formula(formula_copy), pure
 
-
+''' Returns a random literal which occurs in formula'''
 def get_random_split_literal(formula):
     # Get all literals
     all_literals = list(dict.fromkeys([literal for clause in formula for literal in clause]))
+    # Choose a literal randomly from all literals
     random_literal = r.choice(all_literals)
     return random_literal
 
 
-def try_literal(formula, random_literal):
+''' Return formula without random literal and -random literal in its clauses (Boolean constraint propagation)'''
+def extract(formula, random_literal):
     new_formula = []
     empty_clause = False
     counter = 0
     for clause in formula:
-        # Delete literals from clause because they cannot be true anymore
+        # Random literal set to true, so no need to append to new formula!
+        if random_literal in clause:
+            counter += 1
+            continue
+        # If the opposite of random_literal occurs in a clause append clause except -random_literal
         if -random_literal in clause:
             new_formula.append([literal for literal in clause if literal != -random_literal])
             if len(clause) == 1:
@@ -106,11 +114,9 @@ def try_literal(formula, random_literal):
         # Append clauses to formula if literal or negation does not occur in clause
         if random_literal not in clause and -random_literal not in clause:
             new_formula.append(clause)
-        # Clause is true so do not append to new formula
-        if random_literal in clause:
-            counter += 1
-            continue
+    # If there are empty clauses or the literal does not exist in clauses return -1 (this is no solution)
     if empty_clause or counter == 0:
+        print("Found empty clause by split literal")
         return -1
     return new_formula
 
@@ -130,7 +136,7 @@ def print_sudoku(assignment):
     print("\n")
 
 
-''''Get the clauses with empty lists out of the formula. Lists empty because list remains when you delete a clause'''
+''''Get the deleted clauses (which are now empty) out of the formula.'''
 def clean_formula(formula):
     if formula == -1:
         return formula

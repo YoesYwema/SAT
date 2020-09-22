@@ -2,7 +2,7 @@ import argparse
 import math
 import solve
 
-
+'''Returns sudoku in DIMMACs format'''
 def sudoku_into_dimac(file):
     file_dimacs = open("fileDimacs", "w")   # opens new file to write DIMACS version into it
     data = file.read().split()
@@ -38,7 +38,7 @@ parser.add_argument('inputfile', help="Choose your sudoku file to be solved")
 
 args = parser.parse_args()
 
-'''parses the rules into clauses without the zeroes'''
+''' Parses the rules into clauses without the zeroes'''
 def parser(file):
     clauses = []
     for line in open(file):
@@ -49,7 +49,7 @@ def parser(file):
         clauses.append(clause)
     return clauses, nvars
 
-'''parses the given sudoku into clauses without the zeroes'''
+''' Parses the given sudoku into clauses without the zeroes'''
 def sudoku_parser(file): # now only returns the first sudoku
     clauses = []
     for line in open(file):
@@ -59,20 +59,20 @@ def sudoku_parser(file): # now only returns the first sudoku
         if not clause:
             return clauses
 
-'''reads the sudoku file & calls function to translate sudoku to DIMACS'''
+''' Reads the sudoku file & calls function to translate sudoku to DIMACS'''
 file = open(args.inputfile, "r")
 sudoku_into_dimac(file)
 file.close()
 
-'''call to the parsers & call the sat solver in solve.py'''
+''' Call to the parsers & call the sat solver in solve.py'''
 sudoku = sudoku_parser("fileDimacs")
 rules, n_vars = parser("sudoku-rules-4x4.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
 solution = solve.sat_solver(formula, [], 0, 0)
-solve.print_sudoku(list(dict.fromkeys(solution)))
 if solution:
-    print("This problem is satisfiable")
+    print(solution)
+    solve.print_sudoku(list(dict.fromkeys(solution)))
 else:
     print("Problem is unsatisfiable")
