@@ -21,14 +21,15 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
         return False
     if not formula:
         return assignment
-
+    # Random
     if strategy == 1:
         random_literal = get_random_split_literal(formula)
+    # Jeroslaw Wang (JW)
     if strategy == 2:
         random_literal = get_random_split_literal(formula)
 
         '''Instead of random literal you can implement heuristic here'''
-
+    # Most occurrences (MOM)
     if strategy == 3:
         random_literal = get_random_split_literal(formula)
 
