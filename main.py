@@ -70,7 +70,7 @@ rules, n_vars = parser("sudoku-rules-4x4.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
-solution = solve.sat_solver(formula, [])
+solution = solve.sat_solver(formula, [], 0, 0)
 solve.print_sudoku(list(dict.fromkeys(solution)))
 if solution:
     print("This problem is satisfiable")
