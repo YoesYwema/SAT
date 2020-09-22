@@ -3,13 +3,14 @@ import numpy as np
 
 
 def sat_solver(formula, assignment, backtrack, tree_height):
-    # if(tree_height==0):
-    #   formula, assignment = tautologies(formula, assignment)
-    # print("Simplification")
     if formula == - 1:
         return False
     if not formula:
         return assignment
+
+    tree_height += 1
+    if tree_height == 1:
+        tautologies(formula)
 
     formula, pure_assignment = pure_literals(clean_formula(formula))
     formula, unit_assignment = unit_clauses(clean_formula(formula))
@@ -33,8 +34,11 @@ def sat_solver(formula, assignment, backtrack, tree_height):
     return solution
 
 
-def tautologies(rules, sudoku):
-    return 1
+def tautologies(formula):
+    for clause in formula.copy():
+        clause_duplicates = [literal for literal in clause if (literal * -1) in clause and literal > 0]
+        if len(clause_duplicates) > 0:
+            formula.remove(clause)
 
 
 def unit_clauses(formula):
