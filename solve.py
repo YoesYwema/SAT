@@ -3,18 +3,20 @@ import numpy as np
 
 
 def sat_solver(formula, assignment, backtrack, recursion_depth):
+
     # Check if solution found or if failed to find a solution
     if formula == - 1:
         return False
     if not formula:
         return assignment
-    print("Recursion depth: ", str(recursion_depth))
     # Only check for tautologies the first time
     if recursion_depth == 0:
         tautologies(formula)
 
+    if recursion_depth == 1:
+        print_sudoku(assignment)
+
     # Simplification
-    print("Simplification")
     formula, pure_assignment = pure_literals(formula)
     formula, unit_assignment = unit_clauses(formula)
     assignment = assignment + pure_assignment + unit_assignment
@@ -27,11 +29,9 @@ def sat_solver(formula, assignment, backtrack, recursion_depth):
 
     # Get random literal to split
     random_literal = get_random_split_literal(formula)
-    print("Split(1) ", str(random_literal))
     solution = sat_solver(extract(formula, random_literal), assignment + [random_literal], backtrack, recursion_depth+1)
     if not solution:
         backtrack += 1
-        print("Split(2) ", str(-random_literal))
         solution = sat_solver(extract(formula, -random_literal), assignment + [-random_literal], backtrack, recursion_depth+1)
     return solution
 
@@ -58,7 +58,6 @@ def unit_clauses(formula):
     units = list(dict.fromkeys(units))
     for unit in units:
         formula = extract(formula, unit)
-    print("Units: ", str(units))
     return clean_formula(formula), units
 
 
@@ -73,7 +72,6 @@ def pure_literals(formula):
     # Clear all clauses in which a pure literal occurs
     for pure in pures:
         formula = extract(formula, pure)
-    print("Pures: ", str(pures))
     return clean_formula(formula), pures
 
 
@@ -101,7 +99,6 @@ def extract(formula, extractable_literal):
         if -extractable_literal in clause:
             new_formula.append([literal for literal in clause if literal != -extractable_literal])
             if len(clause) == 1:
-                print("Found empty clause: ", str(clause))
                 empty_clause = True
         # Append clauses to formula if literal or negation does not occur in clause
         if extractable_literal not in clause and -extractable_literal not in clause:
@@ -120,8 +117,7 @@ def print_sudoku(assignment):
     for number in assignment:
         if number > 0:
             number = str(number) # convert the 3 digit number to a string
-            sudoku[int(number[1])-1][int(number[2])-1] = number[0]  # first digit -> number, second -> column, third -> row
-    print("\nSudoku solution:")
+            sudoku[int(number[1])-1][int(number[0])-1] = number[2]  # first digit -> number, second -> column, third -> row
     for j in range(9):
         print(str(sudoku[j]))
     print("\n")

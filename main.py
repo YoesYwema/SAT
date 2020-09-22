@@ -4,7 +4,7 @@ import solve
 
 '''Returns sudoku in DIMMACs format'''
 def sudoku_into_dimac(file):
-    file_dimacs = open("fileDimacs", "w")   # opens new file to write DIMACS version into it
+    file_dimacs = open("sudoku-dimacs.txt", "w")   # opens new file to write DIMACS version into it
     data = file.read().split()
     size = int(math.sqrt(len(data[0])))     # gives the size of the sudoku
     row = 0
@@ -59,20 +59,29 @@ def sudoku_parser(file): # now only returns the first sudoku
         if not clause:
             return clauses
 
+
+def write_solution_to_file(solution):
+    file_solution = open(args.inputfile + ".out", "w")
+    for number in solution:
+        file_solution.write(str(number) + " 0\n")
+
+
 ''' Reads the sudoku file & calls function to translate sudoku to DIMACS'''
 file = open(args.inputfile, "r")
 sudoku_into_dimac(file)
 file.close()
 
 ''' Call to the parsers & call the sat solver in solve.py'''
-sudoku = sudoku_parser("fileDimacs")
+sudoku = sudoku_parser("sudoku-dimacs.txt")
 rules, n_vars = parser("sudoku-rules.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
 solution = solve.sat_solver(formula, [], 0, 0)
 if solution:
-    print(solution)
+    print("Sudoku solution:")
     solve.print_sudoku(list(dict.fromkeys(solution)))
+    write_solution_to_file(solution)
 else:
-    print("Problem is unsatisfiable")
+    print("Sudoku is unsolvable")
+    write_solution_to_file([])
