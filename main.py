@@ -26,7 +26,7 @@ def sudoku_into_dimac(file):
             sudoku_nr += 1
     return file_dimacs
 
-'''' Parsing of the arguments into main.py SAT -S? ??file??'''
+'''' Parsing of the arguments into main.py SAT -S{1,2,3} {filename}'''
 parser = argparse.ArgumentParser(description="Tell me which strategy to use on which sudokus.")
 
 parser.add_argument("SAT", type=str, nargs='+')
@@ -77,7 +77,8 @@ rules, n_vars = parser("sudoku-rules.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
-solution = solve.sat_solver(formula, [], 0, 0)
+solution = solve.sat_solver(formula, [], 0, 0, args.strategy)
+
 if solution:
     print("Sudoku solution:")
     solve.print_sudoku(list(dict.fromkeys(solution)))
