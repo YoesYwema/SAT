@@ -120,13 +120,11 @@ def extract(formula, extractable_literal):
 
 '''Prints the solution in an intuitive way'''
 def print_sudoku(assignment):
-    # create a 2d array with zeroes everywhere
     sudoku = np.zeros((9, 9), dtype=int)
-    # take every number in the solution  individually
     for number in assignment:
         if number > 0:
-            number = str(number) # convert the 3 digit number to a string
-            sudoku[int(number[1])-1][int(number[0])-1] = number[2]  # first digit -> number, second -> column, third -> row
+            number = str(number)
+            sudoku[int(number[1])-1][int(number[0])-1] = number[2]
     for j in range(9):
         print(str(sudoku[j]))
 
