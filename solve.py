@@ -23,23 +23,23 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
         return assignment
 
     # Use chosen heuristic
-    if strategy == 1: # Random
-        random_literal = get_random_split_literal(formula)
-    if strategy == 2: # Jeroslaw Wang (JW)
-        random_literal = get_random_split_literal(formula)
+    if strategy == 1:  # Random
+        split_literal = get_random_split_literal(formula)
+    if strategy == 2:  # One sided Jeroslaw Wang (JW)
+        split_literal = get_random_split_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
-    if strategy == 3: # Maximum Occurrences in clause of Minimum Size (MOMS)
-        random_literal = get_random_split_literal(formula)
+    if strategy == 3:  # Maximum Occurrences in clause of Minimum Size (MOMS)
+        split_literal = get_random_split_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
 
-    solution = sat_solver(extract(formula, random_literal), assignment + [random_literal], backtrack, recursion_depth+1, strategy)
+    solution = sat_solver(extract(formula, split_literal), assignment + [split_literal], backtrack, recursion_depth+1, strategy)
     if not solution:
         backtrack += 1
-        solution = sat_solver(extract(formula, -random_literal), assignment + [-random_literal], backtrack, recursion_depth+1, strategy)
+        solution = sat_solver(extract(formula, -split_literal), assignment + [-split_literal], backtrack, recursion_depth+1, strategy)
     return solution
 
 
-''' Checks and deletes tautologies (although they do not appear in sudoku)'''
+''' Checks and deletes tautologies (although they do not appear in the sudoku's)'''
 def tautologies(formula):
     for clause in formula:
         tautologies_list = [literal for literal in clause if -literal in clause and literal in clause]
