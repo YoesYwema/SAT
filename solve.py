@@ -22,12 +22,13 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
     if not formula:
         return assignment
 
+    # Use chosen heuristic
     if strategy == 1: # Random
         random_literal = get_random_split_literal(formula)
     if strategy == 2: # Jeroslaw Wang (JW)
         random_literal = get_random_split_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
-    if strategy == 3: # Most occurrences (MOM)
+    if strategy == 3: # Maximum Occurrences in clause of Minimum Size (MOMS)
         random_literal = get_random_split_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
 

@@ -5,7 +5,7 @@ Project in which we use a satisfiability solver to solve sudokus. You can run th
 `main.py SAT -S{n} {filename}`
 
 In which `{n}` is the number of the heuristic strategy to get a literal to split the formula (1, 2 or 3). 
-**1** for a random literal, **2** for Jeroslaw Wang (JW) and **3** for Maximum Occurrences in clauses of 
+**1** for a random literal, **2** for one sided Jeroslaw Wang (JW) and **3** for Maximum Occurrences in clauses of 
 Minimum Size (MOMS).
 
 
