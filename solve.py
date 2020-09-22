@@ -63,7 +63,7 @@ def unit_clauses(formula, assignment):
     assignment += units
     for unit in units:
         formula = extract(formula, unit)
-    return clean_formula(formula), assignment
+    return formula, assignment
 
 
 ''' Checks for pure literals in the formula and removes the clauses in which a pure literal occurs'''
@@ -78,7 +78,7 @@ def pure_literals(formula, assignment):
     # Clear all clauses in which a pure literal occurs
     for pure in pures:
         formula = extract(formula, pure)
-    return clean_formula(formula), assignment
+    return formula, assignment
 
 
 ''' Returns a random literal which occurs in formula'''
@@ -127,12 +127,3 @@ def print_sudoku(assignment):
             sudoku[int(number[1])-1][int(number[0])-1] = number[2]
     for j in range(9):
         print(str(sudoku[j]))
-
-
-''''Get the deleted clauses (which are now empty) out of the formula.'''
-def clean_formula(formula):
-    if formula == -1:
-        return formula
-    else:
-        formula = [clause for clause in formula if not clause == []]
-    return formula
