@@ -40,10 +40,9 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
 
 ''' Checks and deletes tautologies (although they do not appear in the sudoku's)'''
 def tautologies(formula):
-    for clause in formula:
-        tautologies_list = [literal for literal in clause if -literal in clause and literal in clause]
-        if len(tautologies_list) > 0:
-            formula.remove(clause)
+    tautologies_list = [literal for clause in formula for literal in clause if -literal in clause and literal in clause]
+    for tautology in tautologies_list:
+        delete(formula, tautology)
 
 
 ''' Checks unit literals, removes clauses in which unit literal occurs, removes negation of unit literals from clause'''
