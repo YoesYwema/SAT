@@ -1,5 +1,6 @@
 import random as r
 import numpy as np
+from decimal import Decimal
 '''Main function that is called recursively to perform DPLL algorithm'''
 def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
     # Check if solution found or if failed to find a solution
@@ -91,61 +92,53 @@ def get_random_split_literal(formula):
     return random_literal
 
 def get_jw_literal(clauses):
-    jw_literals= list(dict.fromkeys([literal for clause in formula for literal in clause ]))
+    jw_literals= list(dict.fromkeys([literal for clause in clauses for literal in clause ]))
     best_literal = 0
     highest_jw = 0
-    for variable in unresolved_literals:
+    for variable in jw_literals:
         j_w = 0
+        mom = 0
         for clause in clauses:
             for literal in clause:
                 if variable == literal:
                     j_w += Decimal(1 / np.power(2, len(clause)))
-        if j_w > highest_jw:
-            highest_jw = j_w
-            best_literal = variable
+                elif variable == None:
+                    return none
+        for j_w in jw_literals:
+            if j_w > highest_jw:
+                highest_jw = j_w
+                best_literal = variable
+        return best_literal
+
+
+def get_moms_literal(clauses): # returns a literal based on Maximum Occurences of Minimum Size formula
+    min_length = 100
+    for clause in clauses:  # Iterate over all clauses in the formula
+        if len(clause) < min_length:# Assigned a variable for the length of the clause
+            min_length = len(clause) # If the length of the clause is smaller than the assigned minimal length
+    mom_literals = list(set([literal for clause in clauses for literal in clause if len(clause) == min_length]))
+    best_literal = 0   # Now we will calculate which variable will be chosen based on the minimum difference between positive and negative occurences.
+    highest_moms = 0
+    j_w = 0
+    for variable in mom_literals: # Now we will choose the variables to split on, so we iterate over the list
+        positive = 0
+        negative = 0# And count both the negative and positive occurences (Freeman POSIT)
+        for clause in clauses:
+            for literal in clause:
+                if variable == (-1 * literal):
+                    negative += 1
+                elif variable == literal:
+                    positive += 1
+        # balanced mom’s heuristic maximises (min(n(x), n(¬x)))
+        # favours balanced variables (variables with both positively and negatively occurence).
+        moms = (min(positive, negative) * np.power(3, 3)) + (positive * negative)
+        for moms in mom_literals:
+            if moms > highest_moms:
+                highest_moms = moms
+                best_literal = variable
     return best_literal
 
 
-
-def get_moms_literal(formula):
-    # First set minimal length equal to an integer
-    min_length_clause = 100
-
-    for clause in formula:  # Iterate over all clauses in the formula
-        length_clause = len(clause)  # Assigned a variable for the length of the clause
-        if length_clause < min_length_clause:  # If the length of the clause is smaller than the assigned minimal length
-            min_length_clause == length_clause  # Than we set the minimal length of the clause equal to the new found minimal length
-
-    list_literals = list(dict.fromkeys([literal for clause in formula for literal in clause
-                                        if
-                                        length_clause == min_length_clause]))  # Get all literals that are in the formula where the length of the clause is equal to the minimum length
-
-    # Now we will calculate which variable will be chosen based on the minimum difference between positive and negative occurences.
-    # This is what we call the balanced
-
-    balanced_var = 0
-    highest_moms = 0
-
-    for variable in list_literals:  # Now we will choose the variables to split on, so we iterate over the list
-        count_pos = 0  # And count both the negative and positive occurences (Freeman POSIT)
-        count_neg = 0
-
-        for clause in formula:
-            for literal in clause:
-                if variable == literal:
-                    count_pos = count_pos + 1
-                else:  # variable == (-1 * literal)
-                    count_neg = count_neg + 1
-
-        # balanced mom’s heuristic maximises (min(n(x), n(¬x)))
-        # favours balanced variables (variables with both positively and negatively occurence).
-        formula_moms = (min(count_pos, count_neg) * np.power(2, 2)) + (count_pos * count_neg)
-
-        if formula_moms > highest_moms:
-            highest_moms = formula_moms
-            balanced_var = variable
-
-    return balanced_var
 ''' Return formula without random literal and -random literal in its clauses (Boolean constraint propagation)'''
 def delete(formula, extractable_literal):
     # This is no solution
