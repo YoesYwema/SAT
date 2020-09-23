@@ -1,6 +1,8 @@
 import argparse
 import math
-import solve
+import numpy as np
+import solve as s
+
 
 ''' Returns sudoku in DIMMACs format'''
 def sudoku_into_dimac(file):
@@ -85,7 +87,7 @@ rules = rule_parser("sudoku-rules.txt")
 formula = []
 formula.extend(rules)
 formula.extend(sudoku)
-solution = solve.sat_solver(formula, [], 0, 0, args.strategy)
+solution = s.sat_solver(formula, [], 0, 0, args.strategy)
 
 # Print the solutions
 if solution:

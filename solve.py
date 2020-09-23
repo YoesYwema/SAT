@@ -1,5 +1,4 @@
 import random as r
-import numpy as np
 
 '''Main function that is called recursively to perform DPLL algorithm'''
 def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
@@ -32,10 +31,10 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
         split_literal = get_random_split_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
 
-    solution = sat_solver(extract(formula, split_literal), assignment + [split_literal], backtrack, recursion_depth+1, strategy)
+    solution = sat_solver(delete(formula, split_literal), assignment + [split_literal], backtrack, recursion_depth+1, strategy)
     if not solution:
         backtrack += 1
-        solution = sat_solver(extract(formula, -split_literal), assignment + [-split_literal], backtrack, recursion_depth+1, strategy)
+        solution = sat_solver(delete(formula, -split_literal), assignment + [-split_literal], backtrack, recursion_depth+1, strategy)
     return solution
 
 
@@ -53,7 +52,7 @@ def unit_clauses(formula, assignment):
     if formula == -1:
         return -1, []
     units = []
-    # Find unit literals, save them and clear clause if unit literal is in it
+    # Find unit literals and save them
     for clause in formula:
         if len(clause) == 1:
             for literal in clause:
@@ -62,7 +61,7 @@ def unit_clauses(formula, assignment):
     units = list(dict.fromkeys(units))
     assignment += units
     for unit in units:
-        formula = extract(formula, unit)
+        formula = delete(formula, unit)
     return formula, assignment
 
 
@@ -77,7 +76,7 @@ def pure_literals(formula, assignment):
     assignment += pures
     # Clear all clauses in which a pure literal occurs
     for pure in pures:
-        formula = extract(formula, pure)
+        formula = delete(formula, pure)
     return formula, assignment
 
 
@@ -94,7 +93,7 @@ def get_random_split_literal(formula):
 
 
 ''' Return formula without random literal and -random literal in its clauses (Boolean constraint propagation)'''
-def extract(formula, extractable_literal):
+def delete(formula, extractable_literal):
     # This is no solution
     if formula == -1:
         return -1
