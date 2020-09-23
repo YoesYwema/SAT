@@ -49,6 +49,16 @@ def sudoku_parser(file):
             return clauses
 
 
+'''Prints the solution in an intuitive way'''
+def print_sudoku(assignment):
+    sudoku = np.zeros((9, 9), dtype=int)
+    for number in assignment:
+        if number > 0:
+            number = str(number)
+            sudoku[int(number[1])-1][int(number[0])-1] = number[2]
+    for j in range(9):
+        print(str(sudoku[j]))
+
 ''' Writes the solution to the output file "filename.out" '''
 def write_solution_to_file(solution):
     file_solution = open(args.inputfile + ".out", "w")
@@ -80,7 +90,7 @@ solution = solve.sat_solver(formula, [], 0, 0, args.strategy)
 # Print the solutions
 if solution:
     print("Sudoku solution:")
-    solve.print_sudoku(list(dict.fromkeys(solution)))
+    print_sudoku(list(dict.fromkeys(solution)))
     write_solution_to_file(solution)
 else:
     print("Sudoku is unsolvable")

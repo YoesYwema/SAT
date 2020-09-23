@@ -116,14 +116,3 @@ def extract(formula, extractable_literal):
     if empty_clause:
         return -1
     return new_formula
-
-
-'''Prints the solution in an intuitive way'''
-def print_sudoku(assignment):
-    sudoku = np.zeros((9, 9), dtype=int)
-    for number in assignment:
-        if number > 0:
-            number = str(number)
-            sudoku[int(number[1])-1][int(number[0])-1] = number[2]
-    for j in range(9):
-        print(str(sudoku[j]))
