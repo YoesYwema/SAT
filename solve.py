@@ -25,10 +25,10 @@ def sat_solver(formula, assignment, backtrack, recursion_depth, strategy):
     if strategy == 1:  # Random
         split_literal = get_random_split_literal(formula)
     if strategy == 2:  # One sided Jeroslaw Wang (JW)
-        split_literal = get_random_split_literal(formula)
+        split_literal = get_jw_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
     if strategy == 3:  # Maximum Occurrences in clause of Minimum Size (MOMS)
-        split_literal = get_random_split_literal(formula)
+        split_literal = get_moms_literal(formula)
         '''Instead of random literal you can implement heuristic here'''
 
     solution = sat_solver(delete(formula, split_literal), assignment + [split_literal], backtrack, recursion_depth+1, strategy)
@@ -90,6 +90,14 @@ def get_random_split_literal(formula):
         return -1
     return random_literal
 
+def get_jw_literal(formula):
+    #  code to get JW literal
+    return 1
+
+
+def get_moms_literal(formula):
+    #  code to get JW literal
+    return 1
 
 ''' Return formula without random literal and -random literal in its clauses (Boolean constraint propagation)'''
 def delete(formula, extractable_literal):
